@@ -1,6 +1,12 @@
 #1
 library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(stringr)
+library(ggpubr)
+
 epal = read_excel("Data.xlsx", sheet = 1)
+id <- str_c(epal$villageid, "", epal$hhid, "", epal$indid)
 data = data.frame(epal)
 
 #age
@@ -139,19 +145,44 @@ data$P12 <- cut(data$q189, breaks = c(0,1,2,3), labels = c("TP", "KK", "S"))
 summary(data$P12)
 summary(data$q189)
 
-#Table
-Knowledge <- data.frame(K1 =  data$q159, K2 = data$q160, K3 = data$q161, K4 = data$q162, K5 = data$q163, K6 = data$q165, K7 = data$q166, K8 = data$q167, K9 = data$q168)
+#Table Knowledge
+Knowledge <- data.frame(K1 =  data$q159, K2 = data$q160, K3 = data$q161, K4 = data$q162, K5 = data$q163, K6 = data$q165, K7 = data$q166, K8 = data$q167, K9 = data$q168, 
+                        Score = data$q159+data$q160+data$q161+data$q162+data$q163+data$q165+data$q166+data$q167+data$q168)
 summary(Knowledge)
 averageK <- sum(Knowledge)/nrow(Knowledge)
+meanK <- mean(Knowledge$Score)
+meanK
 averageK
 
-Attitude <- data.frame(A1 = data$q169, A2 = data$q170, A3 = data$q171, A4 = data$q172, A5 = data$q173, A6 = data$q174, A7 = data$q175, A8 = data$q176, A9 = data$q178, A10 = data$q179)
+#Table Attitude
+Attitude <- data.frame(A1 = data$q169, A2 = data$q170, A3 = data$q171, A4 = data$q172, A5 = data$q173, A6 = data$q174, A7 = data$q175, A8 = data$q176, A9 = data$q178, A10 = data$q179,
+                       Score = data$q169+data$q170+data$q171+data$q172+data$q173+data$q174+data$q175+data$q176+data$q178+data$q179)
 summary(Attitude)
 averageA <- sum(Attitude)/nrow(Attitude)
+meanA <- mean(Attitude$Score)
+meanA
 averageA
 
-Practice <- data.frame(P1 = data$q180, P2 = data$q181, P3 = data$q182, P4 = data$q182.2, P5 = data$q182.3, P6 = data$q183, P7 = data$q184, P8 = data$q185, P9 = data$q186, P10 = data$q187, P11 = data$q188, P12 = data$q189)
+#Table Practice
+Practice <- data.frame(P1 = data$q180, P2 = data$q181, P3 = data$q182, P4 = data$q182.2, P5 = data$q182.3, P6 = data$q183, P7 = data$q184, P8 = data$q185, P9 = data$q186, P10 = data$q187, P11 = data$q188, P12 = data$q189,
+                       Score = data$q180+data$q181+data$q182+data$q182.2+data$q182.3+data$q183+data$q184+data$q185+data$q186+data$q187+data$q188+data$q189)
 summary(Practice)
 averageP <- sum(Practice)/nrow(Practice)
+meanP <- mean(Practice$Score)
+meanP
 averageP
 
+write.csv(Knowledge, "/Users/haziqsupangat/Desktop/KG PAGIII/Knowledge.csv")
+write.csv(Attitude, "/Users/haziqsupangat/Desktop/KG PAGIII/Attitude.csv")
+write.csv(Practice, "/Users/haziqsupangat/Desktop/KG PAGIII/Practice.csv")
+
+
+#Objective 3
+
+hist(Knowledge$Score)
+hist(Attitude$Score)
+hist(Practice$Score)
+
+shapiro.test(Knowledge$Score)
+shapiro.test(Attitude$Score)
+shapiro.test(Practice$Score)
