@@ -11,7 +11,9 @@ library(psych)
 #meng-data frame kan dia
 epal = read_excel("Data.xlsx", sheet = 1)
 id <- str_c(epal$villageid, "", epal$hhid, "", epal$indid)
-data = data.frame(epal)
+rdata = data.frame(epal) %>% filter(villageid != "77.0")
+data = data.frame(rdata)
+nrow(data)
 
 #Objective 1
 #meng-describe sociodemographic
@@ -23,18 +25,19 @@ summary(data$age)
 #"Male", "Female" ~ 1, 2
 data$sex <- cut(data$q006, breaks = c(0, 1, Inf), labels = c(1, 2))
 summary(data$sex)
+data$sex <- data.frame(data$sex)
 
 #education level
 data$edu <- cut(data$q013, breaks = c(0, 1, 2, 3, 4, 5), labels = c(1, 2, 3, 4, 5))
 data$edu <- data.frame(data$edu)
 summary(data$edu)
-shapiro.test(as.numeric(data$edu)) #tak normal
+shapiro.test(as.numeric(unlist(data$edu))) #tak normal
 
 #income
 data$income <- cut(data$q047, breaks = c(-Inf, 1000, 2000, 3000, Inf), labels = c(1, 2, 3, 4))
 data$income <- data.frame(data$income)
 summary(data$income)
-shapiro.test(as.numeric(data$income)) #income
+shapiro.test(as.numeric(unlist(data$income))) 
 
 #Objective 2
 #Knowledge
@@ -42,16 +45,19 @@ Knowledge <- data.frame(K1 =  data$q159, K2 = data$q160, K3 = data$q161, K4 = da
                         Score = data$q159+data$q160+data$q161+data$q162+data$q163+data$q165+data$q166+data$q167+data$q168)
 data$Knowledge <- data$q159+data$q160+data$q161+data$q162+data$q163+data$q165+data$q166+data$q167+data$q168
 data$Knowledge <- is.numeric(data$Knowledge)
+shapiro.test(data$Knowledge)
 
 #Attitude
 Attitude <- data.frame(A1 = data$q169, A2 = data$q170, A3 = data$q171, A4 = data$q172, A5 = data$q173, A6 = data$q174, A7 = data$q175, A8 = data$q176, A9 = data$q178, A10 = data$q179,
                        Score = data$q169+data$q170+data$q171+data$q172+data$q173+data$q174+data$q175+data$q176+data$q178+data$q179)
 data$Attitude <- data$q169+data$q170+data$q171+data$q172+data$q173+data$q174+data$q175+data$q176+data$q178+data$q179
+shapiro.test(data$Attitude)
 
 #Practice
 Practice <- data.frame(P1 = data$q180, P2 = data$q181, P3 = data$q182, P4 = data$q182.2, P5 = data$q182.3, P6 = data$q183, P7 = data$q184, P8 = data$q185, P9 = data$q186, P10 = data$q187, P11 = data$q188, P12 = data$q189,
                        Score = data$q180+data$q181+data$q182+data$q182.2+data$q182.3+data$q183+data$q184+data$q185+data$q186+data$q187+data$q188+data$q189)
 data$Practice <- data$q180+data$q181+data$q182+data$q182.2+data$q182.3+data$q183+data$q184+data$q185+data$q186+data$q187+data$q188+data$q189
+shapiro.test(data$Attitude)
 
 #save as table kalau hgpa nak, tukaq la pathname tu nanti
 
@@ -81,12 +87,12 @@ hist(data$Knowledge)
 hist(data$Attitude)
 hist(data$Practice)
 
-shapiro.test(Knowledge$Score)
 shapiro.test(data$Knowledge)
-shapiro.test(Attitude$Score)
-shapiro.test(Practice$Score)
+shapiro.test(data$Attitude)
+shapiro.test(data$Practice)
 
 cor.test(TableAverage$K, TableAverage$P, method=c("spearman"), exact = FALSE) 
+cor.test(TableAverage$A, TableAverage$P, method=c("spearman"), exact = FALSE) 
 cor.test(Practice$Score, Knowledge$Score, method=c("spearman"), exact = FALSE) 
 cor.test(Practice$Score, Attitude$Score, method=c("spearman"))
 
@@ -128,7 +134,7 @@ edulevel <- data %>%
   data.frame(K = data$q159+data$q160+data$q161+data$q162+data$q163+data$q165+data$q166+data$q167+data$q168,
              A = data$q169+data$q170+data$q171+data$q172+data$q173+data$q174+data$q175+data$q176+data$q178+data$q179,
              P = data$q180+data$q181+data$q182+data$q182.2+data$q182.3+data$q183+data$q184+data$q185+data$q186+data$q187+data$q188+data$q189) %>% 
-  filter(edu == 2)
+  filter(edu == 3)
 mean(edulevel$K)
 
 kruskal.test(data$edu ~ data$Knowledge, data = data)
@@ -183,11 +189,11 @@ leveneTest(data = data, Practice ~ age)
 kruskal.test(data$age ~ data$Practice, data = data)
 
 #sex
-sexM <- data %>%
+filter <- data %>%
   data.frame(K = data$q159+data$q160+data$q161+data$q162+data$q163+data$q165+data$q166+data$q167+data$q168,
              A = data$q169+data$q170+data$q171+data$q172+data$q173+data$q174+data$q175+data$q176+data$q178+data$q179,
              P = data$q180+data$q181+data$q182+data$q182.2+data$q182.3+data$q183+data$q184+data$q185+data$q186+data$q187+data$q188+data$q189) %>% 
-  filter(sex == 1)
+  filter(sex == 1)  #ni filter, thanks
 mean(sexM$P)
 
 sexF <- data %>%
@@ -205,7 +211,7 @@ edulevel <- data %>%
   data.frame(K = data$q159+data$q160+data$q161+data$q162+data$q163+data$q165+data$q166+data$q167+data$q168,
              A = data$q169+data$q170+data$q171+data$q172+data$q173+data$q174+data$q175+data$q176+data$q178+data$q179,
              P = data$q180+data$q181+data$q182+data$q182.2+data$q182.3+data$q183+data$q184+data$q185+data$q186+data$q187+data$q188+data$q189) %>% 
-  filter(edu == 2)
+  filter(edu == 3)
 mean(edulevel$K)
 
 leveneTest(data = data, Practice ~ edu)
